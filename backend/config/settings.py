@@ -65,6 +65,13 @@ GEOCODER_URL = os.environ.get("GEOCODER_URL", "https://nominatim.openstreetmap.o
 GEOCODER_USER_AGENT = os.environ.get("GEOCODER_USER_AGENT", "truck-weather-routing/1.0")
 OSRM_BASE_URL = os.environ.get("OSRM_BASE_URL", "https://router.project-osrm.org")
 WEATHER_URL = os.environ.get("WEATHER_URL", "https://api.open-meteo.com/v1/forecast")
+METNO_URL = os.environ.get(
+    "METNO_URL", "https://api.met.no/weatherapi/locationforecast/2.0/compact"
+)
+WEATHER_USER_AGENT = os.environ.get(
+    "WEATHER_USER_AGENT",
+    "truck-weather-routing/1.0 github.com/aqeelkhokhar/truck-weather-routing",
+)
 
 LOGGING = {
     "version": 1,
