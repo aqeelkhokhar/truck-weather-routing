@@ -44,3 +44,11 @@ def test_geocode_upstream_failure_raises():
     responses.add(responses.GET, settings.GEOCODER_URL, status=500)
     with pytest.raises(ExternalServiceError):
         geocode("Dallas")
+
+
+@responses.activate
+def test_upstream_failure_is_logged(caplog):
+    responses.add(responses.GET, settings.GEOCODER_URL, status=403)
+    with pytest.raises(ExternalServiceError):
+        geocode("Dallas")
+    assert "403" in caplog.text
