@@ -1,4 +1,13 @@
+from trips.constants import MAP_GEOMETRY_POINTS
 from trips.domain.ranking import RouteSummary
+
+
+def simplify_geometry(geometry, limit=MAP_GEOMETRY_POINTS):
+    step = max(1, len(geometry) // limit)
+    reduced = list(geometry[::step])
+    if reduced[-1] != geometry[-1]:
+        reduced.append(geometry[-1])
+    return reduced
 
 
 def present_location(location):
@@ -38,7 +47,9 @@ def present_route(plan, recommended_id):
     return {
         "id": plan.route.id,
         "recommended": plan.route.id == recommended_id,
-        "geometry": [[round(lat, 5), round(lon, 5)] for lat, lon in plan.route.geometry],
+        "geometry": [
+            [round(lat, 4), round(lon, 4)] for lat, lon in simplify_geometry(plan.route.geometry)
+        ],
         "summary": present_summary(plan.summary),
         "checkpoints": [present_checkpoint(item) for item in plan.assessed],
     }
