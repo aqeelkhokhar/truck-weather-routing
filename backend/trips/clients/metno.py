@@ -8,6 +8,7 @@ from trips.constants import (
     METNO_WORKERS,
     MM_PER_INCH,
     MS_TO_MPH,
+    SECONDS_PER_HOUR,
     SNOW_TO_LIQUID_RATIO,
 )
 from trips.domain.weather import WeatherSeries
@@ -15,7 +16,6 @@ from trips.domain.weather import WeatherSeries
 HOURLY_BLOCK = "next_1_hours"
 SIX_HOUR_BLOCK = "next_6_hours"
 BLOCK_HOURS = {HOURLY_BLOCK: 1, SIX_HOUR_BLOCK: 6}
-SECONDS_PER_HOUR = 3600
 SLEET_SNOW_SHARE = 0.5
 
 
