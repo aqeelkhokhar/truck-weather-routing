@@ -48,3 +48,19 @@ def summarize_route(route, assessed):
 
 def rank_routes(summaries):
     return sorted(summaries, key=lambda summary: summary.sort_key)
+
+
+CRITERIA = (
+    ("no_travel", lambda summary: summary.blocked),
+    ("severe_miles", lambda summary: round(summary.severe_miles, 1)),
+    ("high_miles", lambda summary: round(summary.high_miles, 1)),
+    ("average_risk", lambda summary: round(summary.average_risk, 2)),
+    ("travel_time", lambda summary: round(summary.duration_seconds / 60)),
+)
+
+
+def decisive_criterion(winner, runner_up):
+    for name, getter in CRITERIA:
+        if getter(winner) != getter(runner_up):
+            return name
+    return "tie"

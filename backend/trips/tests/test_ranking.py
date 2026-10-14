@@ -4,7 +4,7 @@ import pytest
 
 from trips.domain.levels import RiskLevel
 from trips.domain.models import AssessedCheckpoint, Checkpoint, Route
-from trips.domain.ranking import RouteSummary, rank_routes, summarize_route
+from trips.domain.ranking import RouteSummary, decisive_criterion, rank_routes, summarize_route
 from trips.domain.weather import Weather
 
 CALM = Weather(0, 0, 0)
@@ -63,3 +63,18 @@ def test_shortest_duration_is_final_tiebreaker():
 def test_blocked_route_ranks_after_unblocked_even_if_cleaner():
     ranked = rank_routes([summary("a", no_travel=1), summary("b", severe=50, high=50)])
     assert ranked[0].route_id == "b"
+
+
+@pytest.mark.parametrize(
+    ("winner", "runner_up", "expected"),
+    [
+        (summary("a"), summary("b", no_travel=5), "no_travel"),
+        (summary("a"), summary("b", severe=5), "severe_miles"),
+        (summary("a"), summary("b", high=5), "high_miles"),
+        (summary("a"), summary("b", average=0.5), "average_risk"),
+        (summary("a"), summary("b", duration=7200), "travel_time"),
+        (summary("a"), summary("b"), "tie"),
+    ],
+)
+def test_decisive_criterion(winner, runner_up, expected):
+    assert decisive_criterion(winner, runner_up) == expected
