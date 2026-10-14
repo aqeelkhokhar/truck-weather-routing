@@ -4,6 +4,15 @@ A React and Django web app that helps a truck driver pick the safest route based
 
 The driver enters an origin, a destination, a departure time and a load weight. The app generates three routes, samples weather along each one at the driver's estimated arrival time, rates every checkpoint, recommends one route and draws everything on a map with a 0 to 48 hour weather heatmap.
 
+## Hosted application
+
+| Part | URL |
+|---|---|
+| Frontend | https://truck-weather-routing-nine.vercel.app |
+| API | https://truck-weather-routing-api.onrender.com/api/health/ |
+
+The API runs on a free Render instance that sleeps after fifteen minutes without traffic, so the first request after a pause can take up to a minute while it wakes up.
+
 ## Features
 
 - Three route options per trip
@@ -81,7 +90,7 @@ Open http://localhost:5173. The frontend calls http://localhost:8000 by default.
 
 `departure` must fall within the next 48 hours. `load_lb` is 0 to 120000. `spacing_miles` is 10, 25 or 50 and defaults to 25.
 
-The response contains the geocoded origin and destination, the recommendation, every route with its checkpoints and summary, and the heatmap data. Validation problems return 400, unknown places and unroutable trips return 422, and upstream failures return 502.
+The response contains the geocoded origin and destination, the recommendation, every route with its checkpoints and summary, and the heatmap data. Validation problems return 400. Unknown places, two places that resolve to the same point and unroutable trips return 422. Upstream failures return 502.
 
 `GET /api/health/` returns `{"status": "ok"}`.
 
@@ -134,6 +143,8 @@ A checkpoint takes the worst of its wind, rain, snow and load adjusted levels.
 - Miles are weighted by the stretch each checkpoint represents, not by checkpoint count. Each checkpoint covers the ground from the midpoint before it to the midpoint after it.
 - Route ranking order is fewest severe miles, fewest high miles, lowest average risk, shortest time. A route with any No Travel checkpoint ranks after every route without one. If every route is blocked, the app says so instead of presenting a safe choice.
 - ETAs scale the routing API duration by distance along the route. OSRM uses car speeds, so truck times are optimistic.
+- The browser shows every time in the viewer's own time zone, not the time zone of the place on the route.
+- The heatmap canvas ignores pointer events so checkpoint tooltips and route clicks keep working while it is visible.
 - The routing API often returns fewer than three alternatives. When it does, the backend asks for extra routes through offset waypoints and keeps only those that differ enough from the routes already found.
 - The heatmap uses the checkpoints of all three routes. The backend sends 49 hourly risk levels for each point once, and the slider only switches frames in the browser, so moving it never triggers a request.
 - Forecast data is fetched in batches, snapped to a 0.01 degree grid and cached for 30 minutes. Geocoding is cached for a day and routes for an hour.
