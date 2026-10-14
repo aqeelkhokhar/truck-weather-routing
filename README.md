@@ -21,7 +21,7 @@ The driver enters an origin, a destination, a departure time and a load weight. 
 | Frontend | React 19, TypeScript, Material UI, Leaflet, leaflet.heat |
 | Routing | OSRM public API (no key) |
 | Geocoding | Nominatim (no key) |
-| Weather | Open-Meteo hourly forecast (no key) |
+| Weather | Open-Meteo hourly forecast, with MET Norway as an automatic fallback (no keys) |
 | Cache | Django cache, Redis when `REDIS_URL` is set, in memory otherwise |
 
 No API keys are needed to run the project.
@@ -60,7 +60,9 @@ Open http://localhost:5173. The frontend calls http://localhost:8000 by default.
 | `OSRM_BASE_URL` | public OSRM | Routing service |
 | `GEOCODER_URL` | public Nominatim | Geocoding service |
 | `GEOCODER_USER_AGENT` | `truck-weather-routing/1.0` | Required by the Nominatim usage policy |
-| `WEATHER_URL` | Open-Meteo forecast | Weather service |
+| `WEATHER_URL` | Open-Meteo forecast | Primary weather service |
+| `METNO_URL` | MET Norway locationforecast | Fallback weather service |
+| `WEATHER_USER_AGENT` | project name and repository | Identifies the app to MET Norway, which requires it |
 | `VITE_API_URL` | `http://localhost:8000` | Backend URL used by the frontend build |
 
 ## API
@@ -135,6 +137,7 @@ A checkpoint takes the worst of its wind, rain, snow and load adjusted levels.
 - The routing API often returns fewer than three alternatives. When it does, the backend asks for extra routes through offset waypoints and keeps only those that differ enough from the routes already found.
 - The heatmap uses the checkpoints of all three routes. The backend sends 49 hourly risk levels for each point once, and the slider only switches frames in the browser, so moving it never triggers a request.
 - Forecast data is fetched in batches, snapped to a 0.01 degree grid and cached for 30 minutes. Geocoding is cached for a day and routes for an hour.
+- Open-Meteo limits free usage per IP address, and shared hosting addresses regularly exhaust the daily quota. When Open-Meteo refuses a request, the backend falls back to MET Norway, which is limited per application instead. MET Norway reports precipitation amounts and a symbol such as rain, sleet or snow. Snow is converted to snowfall at the standard 10 to 1 snow to liquid ratio and sleet is split evenly between rain and snow.
 - Departure must be within the next 48 hours because the forecast slider covers 0 to 48 hours and weather is only reliable in that window.
 - Public OSRM and Nominatim servers are rate limited and meant for light use. Point `OSRM_BASE_URL` and `GEOCODER_URL` at your own instances for real traffic.
 
