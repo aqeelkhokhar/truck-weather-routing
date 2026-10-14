@@ -2,10 +2,10 @@ from django.core.cache import cache
 
 from trips.clients import metno, openmeteo
 from trips.clients.cache_keys import cache_key
-from trips.constants import COORDINATE_PRECISION, WEATHER_CACHE_SECONDS
+from trips.constants import COORDINATE_PRECISION, PROVIDER_COOLDOWN_SECONDS, WEATHER_CACHE_SECONDS
 from trips.errors import ExternalServiceError
 
-PROVIDERS = (openmeteo, metno)
+COOLDOWN_KEY = cache_key("weather-provider-cooldown", "openmeteo")
 
 
 def snap(point):
@@ -13,12 +13,12 @@ def snap(point):
 
 
 def fetch_from_providers(points):
-    for provider in PROVIDERS[:-1]:
+    if not cache.get(COOLDOWN_KEY):
         try:
-            return provider.fetch_series(points)
+            return openmeteo.fetch_series(points)
         except ExternalServiceError:
-            continue
-    return PROVIDERS[-1].fetch_series(points)
+            cache.set(COOLDOWN_KEY, True, PROVIDER_COOLDOWN_SECONDS)
+    return metno.fetch_series(points)
 
 
 def fetch_forecasts(points):

@@ -154,3 +154,13 @@ def test_error_surfaces_when_every_provider_fails():
     responses.add(responses.GET, settings.METNO_URL, status=503)
     with pytest.raises(ExternalServiceError):
         fetch_forecasts([(10.0, 20.0)])
+
+
+@responses.activate
+def test_rate_limited_provider_is_skipped_during_cooldown():
+    responses.add(responses.GET, settings.WEATHER_URL, status=429)
+    responses.add(responses.GET, settings.METNO_URL, json=payload(hourly_entry(0, 5.0, 0.0, "fog")))
+    fetch_forecasts([(10.0, 20.0)])
+    fetch_forecasts([(30.0, 40.0)])
+    open_meteo_calls = [call for call in responses.calls if "open-meteo" in call.request.url]
+    assert len(open_meteo_calls) == 1
