@@ -36,6 +36,7 @@ DATABASES = {
 }
 
 REDIS_URL = os.environ.get("REDIS_URL")
+LOCAL_CACHE_MAX_ENTRIES = 20_000
 
 if REDIS_URL:
     CACHES = {
@@ -45,7 +46,12 @@ if REDIS_URL:
         }
     }
 else:
-    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "OPTIONS": {"MAX_ENTRIES": LOCAL_CACHE_MAX_ENTRIES},
+        }
+    }
 
 CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", "http://localhost:5173")
 
