@@ -9,6 +9,7 @@ from trips.constants import (
     MAX_ROUTES,
     MAX_VIA_ATTEMPTS,
     METERS_PER_MILE,
+    OSRM_ERROR_STATUSES,
     OVERLAP_REFERENCE_VERTICES,
     OVERLAP_SAMPLE_COUNT,
     OVERLAP_TOLERANCE_MILES,
@@ -36,6 +37,7 @@ def request_routes(waypoints, alternatives):
             "geometries": "geojson",
             "steps": "false",
         },
+        accepted_statuses=OSRM_ERROR_STATUSES,
     )
     if payload.get("code") == "NoRoute":
         raise NoRouteFoundError

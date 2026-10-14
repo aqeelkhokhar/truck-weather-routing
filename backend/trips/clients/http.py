@@ -30,10 +30,11 @@ session.mount("https://", adapter)
 session.mount("http://", adapter)
 
 
-def get_json(url, params=None, headers=None):
+def get_json(url, params=None, headers=None, accepted_statuses=()):
     try:
         response = session.get(url, params=params, headers=headers, timeout=HTTP_TIMEOUT_SECONDS)
-        response.raise_for_status()
+        if response.status_code not in accepted_statuses:
+            response.raise_for_status()
         return response.json()
     except (requests.RequestException, ValueError) as error:
         detail = getattr(getattr(error, "response", None), "text", "")[:300]

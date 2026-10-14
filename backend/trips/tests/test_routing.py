@@ -4,7 +4,7 @@ import pytest
 import responses
 
 from trips.clients.routing import fetch_routes, osrm_path
-from trips.errors import NoRouteFoundError
+from trips.errors import ExternalServiceError, NoRouteFoundError
 
 ORIGIN = (40.0, -100.0)
 DESTINATION = (40.0, -98.0)
@@ -60,8 +60,15 @@ def test_detour_identical_to_primary_is_discarded():
 
 @responses.activate
 def test_no_route_raises():
-    responses.add(responses.GET, OSRM_URL, json={"code": "NoRoute", "routes": []})
+    responses.add(responses.GET, OSRM_URL, status=400, json={"code": "NoRoute", "routes": []})
     with pytest.raises(NoRouteFoundError):
+        fetch_routes(ORIGIN, DESTINATION)
+
+
+@responses.activate
+def test_other_routing_errors_surface_as_upstream_failures():
+    responses.add(responses.GET, OSRM_URL, status=400, json={"code": "InvalidQuery"})
+    with pytest.raises(ExternalServiceError):
         fetch_routes(ORIGIN, DESTINATION)
 
 
