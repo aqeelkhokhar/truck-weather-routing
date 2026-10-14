@@ -1,16 +1,21 @@
 import logging
 
 import requests
+from requests.adapters import HTTPAdapter
 
-from trips.constants import HTTP_TIMEOUT_SECONDS
+from trips.constants import HTTP_POOL_SIZE, HTTP_TIMEOUT_SECONDS
 from trips.errors import ExternalServiceError
 
 logger = logging.getLogger(__name__)
 
+session = requests.Session()
+session.mount("https://", HTTPAdapter(pool_connections=HTTP_POOL_SIZE, pool_maxsize=HTTP_POOL_SIZE))
+session.mount("http://", HTTPAdapter(pool_connections=HTTP_POOL_SIZE, pool_maxsize=HTTP_POOL_SIZE))
+
 
 def get_json(url, params=None, headers=None):
     try:
-        response = requests.get(url, params=params, headers=headers, timeout=HTTP_TIMEOUT_SECONDS)
+        response = session.get(url, params=params, headers=headers, timeout=HTTP_TIMEOUT_SECONDS)
         response.raise_for_status()
         return response.json()
     except (requests.RequestException, ValueError) as error:
