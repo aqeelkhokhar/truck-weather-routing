@@ -10,6 +10,7 @@ import { useTripPlan } from "./features/trip/useTripPlan";
 import type { TripRequest } from "./api/types";
 
 const PANEL_WIDTH = 440;
+const STACKED_MAP_HEIGHT = 480;
 
 export default function App() {
   const { plan, loading, errors, submit } = useTripPlan();
@@ -59,7 +60,14 @@ export default function App() {
           {plan && <TripResults plan={plan} selectedId={activeId} onSelect={setSelectedId} />}
         </Stack>
       </Box>
-      <Box component="main" sx={{ flex: 1, minHeight: { xs: 480, md: 0 } }}>
+      <Box
+        component="main"
+        sx={{
+          flex: { xs: "none", md: 1 },
+          height: { xs: STACKED_MAP_HEIGHT, md: "auto" },
+          minHeight: { md: 0 },
+        }}
+      >
         <TripMap plan={plan} selectedId={activeId} onSelect={setSelectedId} />
       </Box>
     </Box>

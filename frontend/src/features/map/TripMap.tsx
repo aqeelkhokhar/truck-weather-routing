@@ -24,7 +24,7 @@ export function TripMap({ plan, selectedId, onSelect }: TripMapProps) {
   const [heatmapVisible, setHeatmapVisible] = useState(true);
 
   return (
-    <Box sx={{ position: "relative", height: "100%", minHeight: 420 }}>
+    <Box sx={{ position: "relative", height: "100%" }}>
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={DEFAULT_ZOOM}
