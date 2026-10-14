@@ -14,5 +14,6 @@ def get_json(url, params=None, headers=None):
         response.raise_for_status()
         return response.json()
     except (requests.RequestException, ValueError) as error:
-        logger.warning("Upstream request to %s failed: %s", url, error)
+        detail = getattr(getattr(error, "response", None), "text", "")[:300]
+        logger.warning("Upstream request to %s failed: %s %s", url, error, detail)
         raise ExternalServiceError from error
