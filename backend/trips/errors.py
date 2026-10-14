@@ -14,6 +14,12 @@ class NoRouteFoundError(APIException):
     default_code = "no_route_found"
 
 
+class SamePlaceError(APIException):
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    default_detail = "Origin and destination resolve to the same place."
+    default_code = "same_place"
+
+
 class ExternalServiceError(APIException):
     status_code = status.HTTP_502_BAD_GATEWAY
     default_detail = "An upstream service is unavailable."

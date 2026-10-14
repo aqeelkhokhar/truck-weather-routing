@@ -9,6 +9,7 @@ from trips.domain.models import AssessedCheckpoint
 from trips.domain.ranking import decisive_criterion, rank_routes, summarize_route
 from trips.domain.risk import assess_weather
 from trips.domain.sampling import sample_checkpoints
+from trips.errors import SamePlaceError
 
 
 @dataclass(frozen=True)
@@ -59,6 +60,8 @@ def build_heatmap(plans, forecasts, load_lb, now):
 def plan_trip(request, now):
     origin = geocode(request["origin"])
     destination = geocode(request["destination"])
+    if (origin.lat, origin.lon) == (destination.lat, destination.lon):
+        raise SamePlaceError
     routes = fetch_routes((origin.lat, origin.lon), (destination.lat, destination.lon))
     spacing = request["spacing_miles"]
     sampled = [sample_checkpoints(route, spacing, request["departure"]) for route in routes]

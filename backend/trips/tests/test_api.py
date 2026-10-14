@@ -117,6 +117,12 @@ def test_invalid_input_is_rejected(stub_services, overrides):
     assert post(payload(**overrides)).status_code == 400
 
 
+def test_places_resolving_to_the_same_point_are_rejected(stub_services):
+    response = post(payload(origin="Town B", destination="Town C"))
+    assert response.status_code == 422
+    assert "same place" in response.json()["detail"]
+
+
 def test_spacing_defaults_to_twenty_five(stub_services):
     body = payload()
     del body["spacing_miles"]
