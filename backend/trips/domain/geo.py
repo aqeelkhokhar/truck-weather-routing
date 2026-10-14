@@ -30,3 +30,30 @@ def point_at_mile(points, totals, mile):
     lat = points[lower][0] + (points[upper][0] - points[lower][0]) * ratio
     lon = points[lower][1] + (points[upper][1] - points[lower][1]) * ratio
     return lat, lon
+
+
+MILES_PER_DEGREE_LATITUDE = 69.09
+
+
+def perpendicular_offset(points, totals, mile, offset_miles):
+    lat, lon = point_at_mile(points, totals, mile)
+    ahead = point_at_mile(points, totals, mile + 1.0)
+    behind = point_at_mile(points, totals, mile - 1.0)
+    scale = cos(radians(lat))
+    north = ahead[0] - behind[0]
+    east = (ahead[1] - behind[1]) * scale
+    length = sqrt(north**2 + east**2) or 1.0
+    shift_north = -east / length * offset_miles / MILES_PER_DEGREE_LATITUDE
+    shift_east = north / length * offset_miles / (MILES_PER_DEGREE_LATITUDE * scale)
+    return lat + shift_north, lon + shift_east
+
+
+def overlap_ratio(candidate, existing, tolerance_miles, sample_count):
+    step = max(1, len(candidate) // sample_count)
+    samples = candidate[::step]
+    near = sum(
+        1
+        for sample in samples
+        if min(haversine_miles(sample, vertex) for vertex in existing) <= tolerance_miles
+    )
+    return near / len(samples)
